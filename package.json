@@ -1,0 +1,22 @@
+{
+  "name": "github-profile-image-download",
+  "version": "1.0.0",
+  "description": "Given a GitHub repository name and owner, download all the contributors' profile images and save them to a subdirectory, `avatars/`.",
+  "main": "download_avatars.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mxcmxc/github-profile-image-download.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mxcmxc/github-profile-image-download/issues"
+  },
+  "homepage": "https://github.com/mxcmxc/github-profile-image-download#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}
