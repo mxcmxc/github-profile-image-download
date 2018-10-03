@@ -13,7 +13,7 @@ i.e. `node download_avatars.js nodejs node`
 ## Setting up your GitHub API token
 Follow this link to generate a new token with github: https://github.com/settings/tokens
 
-Once generated, copy the token into .env in place of "YOUR-TOKEN-HERE"
+Once generated, create a new file called ".env" and input `GITHUB_TOKEN = YOUR-TOKEN-HERE` and save.
 
 ## Dependencies
 - `dotenv` for accessing GitHub API keys
