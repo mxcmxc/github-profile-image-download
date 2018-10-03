@@ -1,64 +1,61 @@
 var request = require('request');
-var token = require('./secret'); // Your personal GitHub token
+var path = require('path');
 var fs = require('fs');
-
-// Get command line input for repo owner name and repo name
-var repoOwner = process.argv[2];
-var repoName = process.argv[3];
+require('dotenv').config();
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
-// Function get repo contributors
-function getRepoContributors(repoOwner, repoName, callback) {
-  // Create an object with a user-agent header (mandatory for API requests on GitHub)
- var options = {
-   url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
-   headers: {
-     'User-Agent': 'request',
-     'Authorization': `token {token.GITHUB_TOKEN}`
-   }
- };
- // make a request for JSON, getting back an array of contributors
- if(repoOwner && repoName) {
-   // pass the "options" object which includes the url and the headers
-   request(options, function(err, resp, body) {
-     // pass this data and parse (string to JSON obj) it the anonymous callback function
-     callback(err, JSON.parse(body));
-   });
- } else {
-   console.log("please specify repoOwner and repoName");
- }
+// Check required input argments provided
+var args = process.argv.slice(2);
+if (args.length !== 2) {
+  console.log('Error: Please provide 2 arguments as <user> <repo>, ie. $ node download_avatars.js jquery jquery');
 }
 
-// Function to download avatar images for the supplied URLs and save the images to the specified file path
+function getRepoContributors(repoOwner, repoName, cb) {
+  var GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  // Check that API token exists
+  if (!GITHUB_TOKEN) {
+    console.log('Error! Ensure API token is saved in .env as GITHUB_TOKEN=<your_token>')
+    return;
+  }
+  // GET request options
+  var options = {
+    url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
+    headers: {
+      'User-Agent': 'request',
+      'Authorization': 'token ' + GITHUB_TOKEN
+    }
+  };
+  // Send and return the request object
+  request(options, function(err, res, body) {
+    cb(err, body);
+  });
+}
+
+// Download an image from URL and save to filepath
 function downloadImageByURL(url, filePath) {
- // check the write directory exists
- var dirname = path.dirname(filePath);
- if (!fs.existsSync(dirname)) {
-     fs.mkdirSync(dirname);
- }
- request.get(url)
-         .on('error', function (err) {
-           throw err;
-         })
-         .on('resp', function (resp) {
-           console.log('Response Status Code: ', response.statusCode);
-         })
-         .on('end', function () {
-           console.log('Download Completed.');
-         })
-        .pipe(fs.createWriteStream('./avatars/' + filePath + '.png'));
+  // Check that the write directory exists
+  var dirname = path.dirname(filePath);
+  if (!fs.existsSync(dirname)) {
+    fs.mkdirSync(dirname);
+  }
+  // Request the file and pipe to stream
+  request(url).pipe(fs.createWriteStream(filePath)
+  .on('end', function () {
+    console.log(`Finished writing to ${filePath}`);
+  }))
 }
 
-// Call getRepoContributors function
-getRepoContributors(repoOwner, repoName, function callback(err, result) {
- console.log("Errors:", err);
- // callback loops through each item in the array
- result.forEach(function(contributor) {
-  // bind avatar url value and login value to contributor and pass it to downloadImageByURL function and call it
-  downloadImageByURL(contributor.avatar_url, contributor.login);
- });
-});
+// Download list of all repo contributors and convert into JSON file 
+getRepoContributors(args[0], args[1], function(err, result) {
+  var contributors = JSON.parse(result);
+  // log  any errors associated with accessing the information
+  console.log("Errors:", err);
+  // loop through each result obj and download the associated avatar URL
+  contributors.forEach(function(elem, index) {
+    // forEach contributors elem, download the avatar picture and confirms via a console.log()
+    downloadImageByURL(elem.avatar_url, `avatars/${elem.login}.jpg`);
+    console.log(`Downloaded ${elem.login}.jpg`);
 
-//run "node download_avatars.js mxcmxc github-avatar-downloader" to test (output Error: null)
-//run "node download_avatars.js mxcmxc" to test (output please specify repoOwner and repoName)
+  });
+});
