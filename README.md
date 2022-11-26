@@ -1,6 +1,6 @@
-# GitHub Avatar Downloader
+# GitHub Avatar Downloader Free
 
-## Problem Statement
+## Problem Statements
 Use the GitHub API. Given a GitHub repository name and owner, download all the contributors' profile images and save them to a subdirectory folder called `avatars`.The `avatars` folder should contain images corresponding to the avatars of the contributors of the repoThe name of each image file should be the contributor's name and the file extension (ex. `johnny.png`).
 
 ## Run 
@@ -20,3 +20,5 @@ Once generated, create a new file called ".env" and input `GITHUB_TOKEN = YOUR-T
 - `fs` to save the avatar profile images
 - `path` to work with directories and file paths
 - `request` for managing HTTP requests
+
+
